@@ -4,6 +4,7 @@ package com.example.momentum;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.OptionalDouble;
+import java.util.stream.Collectors;
 
 public class RelativeStrengthBacktester {
 
@@ -16,6 +17,7 @@ public class RelativeStrengthBacktester {
     private final int maPeriod;           // e.g. 200-day MA
     private final RotationSpeed rotationSpeed;
     private final int slowKeepRankMultiplier;
+    private final int atrPeriodDays = 20; // for ATR%
 
     public RelativeStrengthBacktester(Map<String, EtfHistory> universe,
                                       EtfRanker ranker,
@@ -62,6 +64,11 @@ public class RelativeStrengthBacktester {
             LocalDate rebalanceDate = rebalanceDates.get(i);
             LocalDate nextRebalanceDate = rebalanceDates.get(i + 1);
 
+            // Always compute ranking (for score display), even if we go risk-off.
+            List<RankedEtf> ranked = ranker.rank(universe, rebalanceDate);
+            Map<String, Double> scoreBySymbol = ranked.stream()
+                    .collect(Collectors.toMap(RankedEtf::symbol, RankedEtf::score));
+
             boolean riskOn = isRiskOn(rebalanceDate);
 
             List<String> selected;
@@ -69,7 +76,6 @@ public class RelativeStrengthBacktester {
             if (!riskOn) {
                 selected = List.of(safetySymbol);
             } else {
-                List<RankedEtf> ranked = ranker.rank(universe, rebalanceDate);
                 selected = selectHoldings(ranked, previousHoldings);
             }
 
@@ -82,10 +88,27 @@ public class RelativeStrengthBacktester {
             equityDates.add(nextRebalanceDate);
             equityValues.add(equity);
 
+            String scoreLabel = (ranker.getMode() == ScoreMode.RS_COMBINED) ? "RS" : "R6M%";
+
+            String holdingsDetails = selected.stream()
+                    .map(sym -> {
+                        Double score = scoreBySymbol.get(sym);
+                        OptionalDouble atrPctOpt = TechnicalIndicators.atrPercent(
+                                universe.get(sym), rebalanceDate, atrPeriodDays);
+                        String scoreStr = (score == null)
+                                ? "n/a"
+                                : String.format("%.2f", score);
+                        String atrStr = atrPctOpt.isEmpty()
+                                ? "n/a"
+                                : String.format("%.2f", atrPctOpt.getAsDouble());
+                        return sym + "(" + scoreLabel + "=" + scoreStr + ",ATR%=" + atrStr + ")";
+                    })
+                    .collect(Collectors.joining(", "));
+
             System.out.printf(
-                    "%s -> %s | riskOn=%s | rotation=%s | scoreMode=%s | holdings=%s | periodRet=%.2f%% | equity=%.2f%n",
+                    "%s -> %s | riskOn=%s | rotation=%s | scoreMode=%s | holdings=[%s] | periodRet=%.2f%% | equity=%.2f%n",
                     rebalanceDate, nextRebalanceDate, riskOn, rotationSpeed, ranker.getMode(),
-                    selected, periodReturn * 100.0, equity);
+                    holdingsDetails, periodReturn * 100.0, equity);
         }
 
         return new EquityCurve(equityDates, equityValues);
