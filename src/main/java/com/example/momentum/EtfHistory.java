@@ -3,6 +3,7 @@ package com.example.momentum;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.OptionalDouble;
 
 public class EtfHistory {
     private final String symbol;
@@ -22,16 +23,16 @@ public class EtfHistory {
         return Collections.unmodifiableList(bars);
     }
 
-  public OptionalDouble getCloseOnOrBefore(LocalDate date) {
-    Optional<PriceBar> barOpt = bars.stream()
-        .filter(b -> !b.date().isAfter(date))
-        .max(Comparator.comparing(PriceBar::date));
+    public OptionalDouble getCloseOnOrBefore(LocalDate date) {
+        Optional<PriceBar> barOpt = bars.stream()
+                .filter(b -> !b.date().isAfter(date))
+                .max(Comparator.comparing(PriceBar::date));
 
-    if (barOpt.isEmpty()) {
-      return OptionalDouble.empty();
+        if (barOpt.isEmpty()) {
+            return OptionalDouble.empty();
+        }
+        return OptionalDouble.of(barOpt.get().close());
     }
-    return OptionalDouble.of(barOpt.get().close());
-  }
 
     public LocalDate getFirstDate() {
         return bars.get(0).date();

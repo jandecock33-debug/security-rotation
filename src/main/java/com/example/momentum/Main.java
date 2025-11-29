@@ -18,24 +18,30 @@ public class Main {
         System.out.println("Working dir: " + System.getProperty("user.dir"));
 
         RotationSpeed rotationSpeed = askRotationSpeedFromUser();
+        ScoreMode scoreMode = askScoreModeFromUser();
 
         // If you want automatic downloads from Stooq, uncomment this:
         // downloadFromStooq();
 
         Map<String, EtfHistory> universe = loadUniverseFromCsv();
 
-        // Combined momentum: 3/6/12 months (~63/126/252 trading days)
-        int lookback3m = 63;
-        int lookback6m = 126;
-        int lookback12m = 252;
+        // Signal calculators
+        ScoreCalculator calculator;
+        if (scoreMode == ScoreMode.RS_COMBINED) {
+            int lookback3m = 63;
+            int lookback6m = 126;
+            int lookback12m = 252;
+            calculator = new CombinedMomentumCalculator(lookback3m, lookback6m, lookback12m);
+        } else {
+            calculator = new SixMonthReturnCalculator(120); // ~6 months
+        }
+
+        EtfRanker ranker = new EtfRanker(calculator, scoreMode);
 
         int topN = 3;
         int maPeriod = 200; // 200-day MA for risk-on/off
         String benchmark = "SPY";
         String safety = "IEF";
-
-        RelativeStrengthCalculator calc = new RelativeStrengthCalculator(lookback3m, lookback6m, lookback12m);
-        RelativeStrengthRanker ranker = new RelativeStrengthRanker(calc);
 
         int slowKeepRankMultiplier = 2; // keep holdings while they remain in top (N * 2)
         RelativeStrengthBacktester backtester = new RelativeStrengthBacktester(
@@ -52,7 +58,7 @@ public class Main {
         System.out.println("Initial capital: " + initialCapital);
         System.out.println("Final equity: " + finalEquity);
 
-        plotEquityCurve(curve, rotationSpeed);
+        plotEquityCurve(curve, rotationSpeed, scoreMode);
     }
 
     private static RotationSpeed askRotationSpeedFromUser() {
@@ -66,6 +72,19 @@ public class Main {
             return RotationSpeed.SLOW;
         }
         return RotationSpeed.FAST;
+    }
+
+    private static ScoreMode askScoreModeFromUser() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Choose ranking mode:");
+        System.out.println("  1 = Combined RS (3/6/12-month momentum)");
+        System.out.println("  2 = Last 6 months return (%)");
+        System.out.print("Your choice [1/2]: ");
+        String input = scanner.nextLine().trim();
+        if ("2".equals(input)) {
+            return ScoreMode.RETURN_6M;
+        }
+        return ScoreMode.RS_COMBINED;
     }
 
     private static void downloadFromStooq() throws IOException, InterruptedException {
@@ -95,7 +114,7 @@ public class Main {
         universe.put("GOOG", StooqCsvLoader.load("GOOG", Path.of("data/GOOG_stooq.csv")));
         universe.put("UBER", StooqCsvLoader.load("UBER", Path.of("data/UBER_stooq.csv")));
         universe.put("COIN", StooqCsvLoader.load("COIN", Path.of("data/COIN_stooq.csv")));  // kathy Wood 251124
-//        universe.put("BMNR", StooqCsvLoader.load("BMNR", Path.of("data/BMNR_stooq.csv")));   // kathy Wood 251124
+        universe.put("BMNR", StooqCsvLoader.load("BMNR", Path.of("data/BMNR_stooq.csv")));   // kathy Wood 251124
         universe.put("CRCL", StooqCsvLoader.load("CRCL", Path.of("data/CRCL_stooq.csv")));  // kathy Wood 251124
         universe.put("CDE", StooqCsvLoader.load("CDE", Path.of("data/CDE_stooq.csv")));
         universe.put("CPER", StooqCsvLoader.load("CPER", Path.of("data/CPER_stooq.csv")));
@@ -105,7 +124,7 @@ public class Main {
         universe.put("AMC", StooqCsvLoader.load("AMC", Path.of("data/AMC_stooq.csv")));
 //        universe.put("UAMY", StooqCsvLoader.load("UAMY", Path.of("data/UAMY_stooq.csv")));
         universe.put("APP", StooqCsvLoader.load("APP", Path.of("data/APP_stooq.csv")));
-        universe.put("OPEN", StooqCsvLoader.load("OPEN", Path.of("data/OPEN_stooq.csv")));
+//        universe.put("OPEN", StooqCsvLoader.load("OPEN", Path.of("data/OPEN_stooq.csv")));
         universe.put("OPFI", StooqCsvLoader.load("OPFI", Path.of("data/OPFI_stooq.csv")));
         universe.put("URA", StooqCsvLoader.load("URA", Path.of("data/URA_stooq.csv")));
 
@@ -126,7 +145,7 @@ public class Main {
         return new EtfHistory(original.getSymbol(), filtered);
     }
 
-    private static void plotEquityCurve(EquityCurve curve, RotationSpeed speed) {
+    private static void plotEquityCurve(EquityCurve curve, RotationSpeed speed, ScoreMode mode) {
         List<Date> xData = curve.dates().stream()
                 .map(Date::valueOf)
                 .collect(Collectors.toList());
@@ -134,7 +153,7 @@ public class Main {
         XYChart chart = new XYChartBuilder()
                 .width(900)
                 .height(600)
-                .title("Dual-Momentum ETF Strategy (" + speed + " rotation) - Equity Curve")
+                .title("Dual-Momentum ETF Strategy (" + speed + ", " + mode + ") - Equity Curve")
                 .xAxisTitle("Date")
                 .yAxisTitle("Equity")
                 .build();

@@ -1,4 +1,4 @@
 
 package com.example.momentum;
 
-public record RankedEtf(String symbol, double relativeStrength) {}
+public record RankedEtf(String symbol, double score) {}

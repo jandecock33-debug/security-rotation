@@ -3,11 +3,12 @@ package com.example.momentum;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.OptionalDouble;
 
 public class RelativeStrengthBacktester {
 
     private final Map<String, EtfHistory> universe;
-    private final RelativeStrengthRanker ranker;
+    private final EtfRanker ranker;
     private final int topN;
 
     private final String benchmarkSymbol; // e.g. SPY
@@ -17,7 +18,7 @@ public class RelativeStrengthBacktester {
     private final int slowKeepRankMultiplier;
 
     public RelativeStrengthBacktester(Map<String, EtfHistory> universe,
-                                      RelativeStrengthRanker ranker,
+                                      EtfRanker ranker,
                                       int topN,
                                       String benchmarkSymbol,
                                       String safetySymbol,
@@ -81,8 +82,10 @@ public class RelativeStrengthBacktester {
             equityDates.add(nextRebalanceDate);
             equityValues.add(equity);
 
-            System.out.printf("%s -> %s | riskOn=%s | rotation=%s | holdings=%s | periodRet=%.2f%% | equity=%.2f%n",
-                    rebalanceDate, nextRebalanceDate, riskOn, rotationSpeed, selected, periodReturn * 100.0, equity);
+            System.out.printf(
+                    "%s -> %s | riskOn=%s | rotation=%s | scoreMode=%s | holdings=%s | periodRet=%.2f%% | equity=%.2f%n",
+                    rebalanceDate, nextRebalanceDate, riskOn, rotationSpeed, ranker.getMode(),
+                    selected, periodReturn * 100.0, equity);
         }
 
         return new EquityCurve(equityDates, equityValues);
@@ -116,7 +119,7 @@ public class RelativeStrengthBacktester {
         List<String> selected = new ArrayList<>();
         for (RankedEtf r : ranked) {
             if (r.symbol().equals(safetySymbol)) continue;
-            if (r.relativeStrength() <= 0.0) break;
+            if (r.score() <= 0.0) break;
             selected.add(r.symbol());
             if (selected.size() == topN) break;
         }
@@ -129,7 +132,7 @@ public class RelativeStrengthBacktester {
     /**
      * Slow rotation:
      * - Try to keep existing holdings as long as they stay reasonably strong
-     *   (still in top N * slowKeepRankMultiplier and RS > 0).
+     *   (still in top N * slowKeepRankMultiplier and score > 0).
      * - Only replace them when they drop further down the ranking, or when
      *   there are clearly stronger candidates available.
      */
@@ -153,13 +156,13 @@ public class RelativeStrengthBacktester {
             previousRisky.add(sym);
         }
 
-        // Filter: must still be in ranking, RS > 0, and rank <= keepRankLimit
+        // Filter: must still be in ranking, score > 0, and rank <= keepRankLimit
         List<String> keepCandidates = new ArrayList<>();
         for (String sym : previousRisky) {
             RankedEtf r = bySymbol.get(sym);
             Integer rank = rankIndex.get(sym);
             if (r == null || rank == null) continue;
-            if (r.relativeStrength() <= 0.0) continue;
+            if (r.score() <= 0.0) continue;
             if (rank > keepRankLimit) continue;
             keepCandidates.add(sym);
         }
@@ -176,7 +179,7 @@ public class RelativeStrengthBacktester {
         for (RankedEtf r : ranked) {
             if (selected.size() >= topN) break;
             if (r.symbol().equals(safetySymbol)) continue;
-            if (r.relativeStrength() <= 0.0) break;
+            if (r.score() <= 0.0) break;
             if (selected.contains(r.symbol())) continue;
             selected.add(r.symbol());
         }
