@@ -5,13 +5,13 @@ import java.time.LocalDate;
 import java.util.OptionalDouble;
 
 /**
- * Computes a combined relative-strength / momentum score using one or more lookback windows.
+ * Computes a combined momentum score using one or more lookback windows.
  * If you pass a single lookback (e.g. 126 days) this reduces to classic 1-period momentum.
  * If you pass multiple lookbacks (e.g. 63/126/252) their simple average is used.
  */
 public class RelativeStrengthCalculator {
 
-    private final int[] lookbackDays; // e.g. {63, 126, 252} for 3/6/12 months
+    private final int[] lookbackDays;
 
     public RelativeStrengthCalculator(int... lookbackDays) {
         if (lookbackDays == null || lookbackDays.length == 0) {
@@ -31,9 +31,7 @@ public class RelativeStrengthCalculator {
         for (int lb : lookbackDays) {
             LocalDate lookbackDate = asOfDate.minusDays(lb);
             OptionalDouble closeLookbackOpt = history.getCloseOnOrBefore(lookbackDate);
-            if (closeLookbackOpt.isEmpty()) {
-                continue;
-            }
+            if (closeLookbackOpt.isEmpty()) continue;
             double cPast = closeLookbackOpt.getAsDouble();
             if (cPast <= 0.0) continue;
 

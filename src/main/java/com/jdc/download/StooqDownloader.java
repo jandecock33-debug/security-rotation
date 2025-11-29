@@ -22,13 +22,36 @@ public class StooqDownloader {
 //    dl.downloadDailyCsv("qqq.us", Path.of("data/QQQ_stooq.csv"));
 //    dl.downloadDailyCsv("iwm.us", Path.of("data/IWM_stooq.csv"));
 //    dl.downloadDailyCsv("ief.us", Path.of("data/IEF_stooq.csv"));
-//
-//    dl.downloadDailyCsv("nvda.us", Path.of("data/NVDA_stooq.csv"));
-//    dl.downloadDailyCsv("gld.us", Path.of("data/GLD_stooq.csv"));
-//    dl.downloadDailyCsv("slv.us", Path.of("data/SLV_stooq.csv"));
-//    dl.downloadDailyCsv("tqqq.us", Path.of("data/TQQQ_stooq.csv"));
-//    dl.downloadDailyCsv("soxl.us", Path.of("data/SOXL_stooq.csv"));
+
+    dl.downloadDailyCsv("spy.us", Path.of("data/SPY_stooq.csv"));
+    dl.downloadDailyCsv("efa.us", Path.of("data/EFA_stooq.csv"));
+    dl.downloadDailyCsv("qqq.us", Path.of("data/QQQ_stooq.csv"));
+    dl.downloadDailyCsv("iwm.us", Path.of("data/IWM_stooq.csv"));
+    dl.downloadDailyCsv("ief.us", Path.of("data/IEF_stooq.csv"));
+    dl.downloadDailyCsv("nvda.us", Path.of("data/NVDA_stooq.csv"));
+    dl.downloadDailyCsv("gld.us", Path.of("data/GLD_stooq.csv"));
+    dl.downloadDailyCsv("slv.us", Path.of("data/SLV_stooq.csv"));
+    dl.downloadDailyCsv("tqqq.us", Path.of("data/TQQQ_stooq.csv"));
+    dl.downloadDailyCsv("soxl.us", Path.of("data/SOXL_stooq.csv"));
     dl.downloadDailyCsv("sqqq.us", Path.of("data/SQQQ_stooq.csv"));
+    dl.downloadDailyCsv("goog.us", Path.of("data/GOOG_stooq.csv"));
+    dl.downloadDailyCsv("uber.us", Path.of("data/UBER_stooq.csv"));
+    dl.downloadDailyCsv("coin.us", Path.of("data/COIN_stooq.csv"));
+    dl.downloadDailyCsv("bmnr.us", Path.of("data/BMNR_stooq.csv"));
+    dl.downloadDailyCsv("crcl.us", Path.of("data/CRCL_stooq.csv"));
+    dl.downloadDailyCsv("cde.us", Path.of("data/CDE_stooq.csv"));
+    dl.downloadDailyCsv("cper.us", Path.of("data/CPER_stooq.csv"));
+    dl.downloadDailyCsv("uup.us", Path.of("data/UUP_stooq.csv"));
+    dl.downloadDailyCsv("tlt.us", Path.of("data/TLT_stooq.csv"));
+    dl.downloadDailyCsv("baba.us", Path.of("data/BABA_stooq.csv"));
+    dl.downloadDailyCsv("amc.us", Path.of("data/AMC_stooq.csv"));
+    dl.downloadDailyCsv("uamy.us", Path.of("data/UAMY_stooq.csv"));
+    dl.downloadDailyCsv("app.us", Path.of("data/APP_stooq.csv"));
+    dl.downloadDailyCsv("open.us", Path.of("data/OPEN_stooq.csv"));
+    dl.downloadDailyCsv("opfi.us", Path.of("data/OPFI_stooq.csv"));
+    dl.downloadDailyCsv("ura.us", Path.of("data/URA_stooq.csv"));
+
+
   }
 
   public void downloadDailyCsv(String stooqSymbol, Path targetFile)

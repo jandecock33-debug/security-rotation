@@ -4,6 +4,7 @@ package com.example.momentum;
 import java.util.*;
 
 public class Portfolio {
+
     private final Map<String, Double> weightsBySymbol = new HashMap<>();
 
     public Map<String, Double> getWeightsBySymbol() {

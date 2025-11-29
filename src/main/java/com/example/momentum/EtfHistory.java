@@ -22,21 +22,16 @@ public class EtfHistory {
         return Collections.unmodifiableList(bars);
     }
 
-    public OptionalDouble getCloseOn(LocalDate date) {
-        return bars.stream()
-                   .filter(b -> b.date().equals(date))
-                   .mapToDouble(PriceBar::close)
-                   .findFirst();
-    }
+  public OptionalDouble getCloseOnOrBefore(LocalDate date) {
+    Optional<PriceBar> barOpt = bars.stream()
+        .filter(b -> !b.date().isAfter(date))
+        .max(Comparator.comparing(PriceBar::date));
 
-    public OptionalDouble getCloseOnOrBefore(LocalDate date) {
-      return bars.stream()
-          .filter(b -> !b.date().isAfter(date))
-          .max(Comparator.comparing(PriceBar::date))
-          .stream()
-          .mapToDouble(PriceBar::close)
-          .findFirst();
+    if (barOpt.isEmpty()) {
+      return OptionalDouble.empty();
     }
+    return OptionalDouble.of(barOpt.get().close());
+  }
 
     public LocalDate getFirstDate() {
         return bars.get(0).date();
