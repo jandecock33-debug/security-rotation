@@ -1,7 +1,8 @@
 
-# Java ETF Dual-Momentum Backtester (rotation + signal mode + ATR%)
+# Java ETF Dual-Momentum Backtester (Complete Version)
 
 Features:
+
 - CSV loader for Stooq daily data (Date,Open,High,Low,Close,Volume).
 - Monthly dual-momentum strategy with:
   - Risk-on/off using 200-day SMA of SPY.
@@ -12,11 +13,13 @@ Features:
 - Signal modes (ranking metric):
   - RS_COMBINED: 3/6/12-month combined momentum (63/126/252 days).
   - RETURN_6M: simple last 6-month return in percent (~120 trading days).
-- ATR% calculation (20-day ATR / close * 100):
-  - For every selected ETF on each rebalance, console output includes:
-    - its score (RS or 6M%) and
-    - its ATR% at the rebalance date.
-- Equity curve plotting using XChart.
+- ATR% calculation (20-day ATR / close * 100).
+- Console output per rebalance:
+  - Original summary line with holdings, score (RS or 6M%) and ATR%.
+  - Full ranked universe list, sorted by current score mode, with ATR%.
+- CSV export of the ranked universe:
+  - Written to `output/ranked-universe.csv`.
+  - Columns: date, scoreMode, rotationSpeed, riskOn, rank, symbol, score, atrPercent, isHolding.
 
 ## Data
 
@@ -55,12 +58,9 @@ Or uncomment `downloadFromStooq()` in `Main` to let the app download them.
    - rotation mode,
    - score mode,
    - holdings **including score and ATR%**,
-   - period return and equity.
+   - period return and equity,
+   - full ranked universe list.
 
-   Example snippet:
+4. The file `output/ranked-universe.csv` contains the full ranking history for use in Excel/R, etc.
 
-   2015-01-30 -> 2015-02-27 | riskOn=true | rotation=FAST | scoreMode=RS_COMBINED |
-     holdings=[QQQ(RS=0.18,ATR%=1.45),IWM(RS=0.15,ATR%=1.80),SPY(RS=0.12,ATR%=1.10)] |
-     periodRet=2.34% | equity=102345.67
-
-4. An XChart window pops up with the equity curve for that configuration.
+5. An XChart window pops up with the equity curve for that configuration.

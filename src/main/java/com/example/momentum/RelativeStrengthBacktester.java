@@ -5,6 +5,10 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.OptionalDouble;
 import java.util.stream.Collectors;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 public class RelativeStrengthBacktester {
 
@@ -18,6 +22,7 @@ public class RelativeStrengthBacktester {
     private final RotationSpeed rotationSpeed;
     private final int slowKeepRankMultiplier;
     private final int atrPeriodDays = 20; // for ATR%
+    private final Path rankingsCsvPath;
 
     public RelativeStrengthBacktester(Map<String, EtfHistory> universe,
                                       EtfRanker ranker,
@@ -41,6 +46,24 @@ public class RelativeStrengthBacktester {
         }
         if (!universe.containsKey(safetySymbol)) {
             throw new IllegalArgumentException("Universe does not contain safety asset: " + safetySymbol);
+        }
+
+        this.rankingsCsvPath = Paths.get("output", "ranked-universe.csv");
+        initCsv();
+    }
+
+    private void initCsv() {
+        try {
+            Files.createDirectories(rankingsCsvPath.getParent());
+            String header = "date,scoreMode,rotationSpeed,riskOn,rank,symbol,score,atrPercent,isHolding%n";
+            Files.writeString(
+                    rankingsCsvPath,
+                    String.format(header),
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING
+            );
+        } catch (Exception e) {
+            System.err.println("Could not initialize rankings CSV: " + e.getMessage());
         }
     }
 
@@ -90,6 +113,7 @@ public class RelativeStrengthBacktester {
 
             String scoreLabel = (ranker.getMode() == ScoreMode.RS_COMBINED) ? "RS" : "R6M%";
 
+            // existing holdings line
             String holdingsDetails = selected.stream()
                     .map(sym -> {
                         Double score = scoreBySymbol.get(sym);
@@ -109,6 +133,12 @@ public class RelativeStrengthBacktester {
                     "%s -> %s | riskOn=%s | rotation=%s | scoreMode=%s | holdings=[%s] | periodRet=%.2f%% | equity=%.2f%n",
                     rebalanceDate, nextRebalanceDate, riskOn, rotationSpeed, ranker.getMode(),
                     holdingsDetails, periodReturn * 100.0, equity);
+
+            // full ranked list in console
+            printRankedUniverse(rebalanceDate, ranked, scoreLabel);
+
+            // write ranked universe to CSV
+            appendRankingsCsv(rebalanceDate, riskOn, selected, ranked);
         }
 
         return new EquityCurve(equityDates, equityValues);
@@ -243,5 +273,59 @@ public class RelativeStrengthBacktester {
         }
 
         return total;
+    }
+
+    // print full ranked list to console
+    private void printRankedUniverse(LocalDate asOfDate,
+                                     List<RankedEtf> ranked,
+                                     String scoreLabel) {
+
+        System.out.println("  Ranked universe on " + asOfDate + " (" + scoreLabel + "):");
+        int pos = 1;
+        for (RankedEtf r : ranked) {
+            EtfHistory h = universe.get(r.symbol());
+            OptionalDouble atrPctOpt = TechnicalIndicators.atrPercent(h, asOfDate, atrPeriodDays);
+            String atrStr = atrPctOpt.isEmpty()
+                    ? "n/a"
+                    : String.format("%.2f", atrPctOpt.getAsDouble());
+            System.out.printf("    #%d %s: %s=%.2f, ATR%%=%s%n",
+                    pos++, r.symbol(), scoreLabel, r.score(), atrStr);
+        }
+    }
+
+    // write ranked universe to CSV
+    private void appendRankingsCsv(LocalDate date,
+                                   boolean riskOn,
+                                   List<String> selected,
+                                   List<RankedEtf> ranked) {
+        try {
+            StringBuilder sb = new StringBuilder();
+            int pos = 1;
+            for (RankedEtf r : ranked) {
+                EtfHistory h = universe.get(r.symbol());
+                OptionalDouble atrPctOpt = TechnicalIndicators.atrPercent(h, date, atrPeriodDays);
+
+                String scoreStr = String.format(Locale.US, "%.6f", r.score());
+                String atrStr = atrPctOpt.isEmpty()
+                        ? ""
+                        : String.format(Locale.US, "%.4f", atrPctOpt.getAsDouble());
+                boolean holding = selected.contains(r.symbol());
+
+                sb.append(date).append(',')
+                  .append(ranker.getMode()).append(',')
+                  .append(rotationSpeed).append(',')
+                  .append(riskOn).append(',')
+                  .append(pos++).append(',')
+                  .append(r.symbol()).append(',')
+                  .append(scoreStr).append(',')
+                  .append(atrStr).append(',')
+                  .append(holding)
+                  .append('\n');
+            }
+
+            Files.writeString(rankingsCsvPath, sb.toString(), StandardOpenOption.APPEND);
+        } catch (Exception e) {
+            System.err.println("Could not append rankings CSV: " + e.getMessage());
+        }
     }
 }

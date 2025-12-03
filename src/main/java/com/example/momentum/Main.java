@@ -57,6 +57,7 @@ public class Main {
 
         System.out.println("Initial capital: " + initialCapital);
         System.out.println("Final equity: " + finalEquity);
+        System.out.println("Ranked universe CSV written to output/ranked-universe.csv");
 
         plotEquityCurve(curve, rotationSpeed, scoreMode);
     }
@@ -88,12 +89,6 @@ public class Main {
     }
 
     private static void downloadFromStooq() throws IOException, InterruptedException {
-        StooqDownloader dl = new StooqDownloader();
-        dl.downloadDailyCsv("spy.us", Path.of("data/SPY_stooq.csv"));
-        dl.downloadDailyCsv("efa.us", Path.of("data/EFA_stooq.csv"));
-        dl.downloadDailyCsv("qqq.us", Path.of("data/QQQ_stooq.csv"));
-        dl.downloadDailyCsv("iwm.us", Path.of("data/IWM_stooq.csv"));
-        dl.downloadDailyCsv("ief.us", Path.of("data/IEF_stooq.csv"));
     }
 
     private static Map<String, EtfHistory> loadUniverseFromCsv() throws IOException {
@@ -114,19 +109,22 @@ public class Main {
         universe.put("GOOG", StooqCsvLoader.load("GOOG", Path.of("data/GOOG_stooq.csv")));
         universe.put("UBER", StooqCsvLoader.load("UBER", Path.of("data/UBER_stooq.csv")));
         universe.put("COIN", StooqCsvLoader.load("COIN", Path.of("data/COIN_stooq.csv")));  // kathy Wood 251124
-        universe.put("BMNR", StooqCsvLoader.load("BMNR", Path.of("data/BMNR_stooq.csv")));   // kathy Wood 251124
+//        universe.put("BMNR", StooqCsvLoader.load("BMNR", Path.of("data/BMNR_stooq.csv")));   // kathy Wood 251124
         universe.put("CRCL", StooqCsvLoader.load("CRCL", Path.of("data/CRCL_stooq.csv")));  // kathy Wood 251124
         universe.put("CDE", StooqCsvLoader.load("CDE", Path.of("data/CDE_stooq.csv")));
         universe.put("CPER", StooqCsvLoader.load("CPER", Path.of("data/CPER_stooq.csv")));
         universe.put("UUP", StooqCsvLoader.load("UUP", Path.of("data/UUP_stooq.csv")));
         universe.put("TLT", StooqCsvLoader.load("TLT", Path.of("data/TLT_stooq.csv")));
-        universe.put("BABA", StooqCsvLoader.load("BABA", Path.of("data/BABA_stooq.csv")));  // kathy Wood 251124
+//        universe.put("BABA", StooqCsvLoader.load("BABA", Path.of("data/BABA_stooq.csv")));  // kathy Wood 251124
         universe.put("AMC", StooqCsvLoader.load("AMC", Path.of("data/AMC_stooq.csv")));
 //        universe.put("UAMY", StooqCsvLoader.load("UAMY", Path.of("data/UAMY_stooq.csv")));
         universe.put("APP", StooqCsvLoader.load("APP", Path.of("data/APP_stooq.csv")));
 //        universe.put("OPEN", StooqCsvLoader.load("OPEN", Path.of("data/OPEN_stooq.csv")));
         universe.put("OPFI", StooqCsvLoader.load("OPFI", Path.of("data/OPFI_stooq.csv")));
         universe.put("URA", StooqCsvLoader.load("URA", Path.of("data/URA_stooq.csv")));
+        universe.put("NU", StooqCsvLoader.load("NU", Path.of("data/NU_stooq.csv")));
+        universe.put("SMH", StooqCsvLoader.load("SMH", Path.of("data/SMH_stooq.csv")));
+        universe.put("EMQQ", StooqCsvLoader.load("EMQQ", Path.of("data/EMQQ_stooq.csv")));
 
         // Optional: trim history if you only want data from a given date
         LocalDate startDate = LocalDate.of(2002, 1, 1);
