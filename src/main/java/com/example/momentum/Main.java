@@ -109,13 +109,13 @@ public class Main {
         universe.put("GOOG", StooqCsvLoader.load("GOOG", Path.of("data/GOOG_stooq.csv")));
         universe.put("UBER", StooqCsvLoader.load("UBER", Path.of("data/UBER_stooq.csv")));
         universe.put("COIN", StooqCsvLoader.load("COIN", Path.of("data/COIN_stooq.csv")));  // kathy Wood 251124
-//        universe.put("BMNR", StooqCsvLoader.load("BMNR", Path.of("data/BMNR_stooq.csv")));   // kathy Wood 251124
+        universe.put("BMNR", StooqCsvLoader.load("BMNR", Path.of("data/BMNR_stooq.csv")));   // kathy Wood 251124
         universe.put("CRCL", StooqCsvLoader.load("CRCL", Path.of("data/CRCL_stooq.csv")));  // kathy Wood 251124
-        universe.put("CDE", StooqCsvLoader.load("CDE", Path.of("data/CDE_stooq.csv")));
+//        universe.put("CDE", StooqCsvLoader.load("CDE", Path.of("data/CDE_stooq.csv")));
         universe.put("CPER", StooqCsvLoader.load("CPER", Path.of("data/CPER_stooq.csv")));
         universe.put("UUP", StooqCsvLoader.load("UUP", Path.of("data/UUP_stooq.csv")));
         universe.put("TLT", StooqCsvLoader.load("TLT", Path.of("data/TLT_stooq.csv")));
-//        universe.put("BABA", StooqCsvLoader.load("BABA", Path.of("data/BABA_stooq.csv")));  // kathy Wood 251124
+        universe.put("BABA", StooqCsvLoader.load("BABA", Path.of("data/BABA_stooq.csv")));  // kathy Wood 251124
         universe.put("AMC", StooqCsvLoader.load("AMC", Path.of("data/AMC_stooq.csv")));
 //        universe.put("UAMY", StooqCsvLoader.load("UAMY", Path.of("data/UAMY_stooq.csv")));
         universe.put("APP", StooqCsvLoader.load("APP", Path.of("data/APP_stooq.csv")));
@@ -125,6 +125,26 @@ public class Main {
         universe.put("NU", StooqCsvLoader.load("NU", Path.of("data/NU_stooq.csv")));
         universe.put("SMH", StooqCsvLoader.load("SMH", Path.of("data/SMH_stooq.csv")));
         universe.put("EMQQ", StooqCsvLoader.load("EMQQ", Path.of("data/EMQQ_stooq.csv")));
+        universe.put("REMX", StooqCsvLoader.load("REMX", Path.of("data/REMX_stooq.csv")));
+        universe.put("RGLD", StooqCsvLoader.load("RGLD", Path.of("data/RGLD_stooq.csv")));
+        universe.put("PLTR", StooqCsvLoader.load("PLTR", Path.of("data/PLTR_stooq.csv")));
+        universe.put("AAPL", StooqCsvLoader.load("AAPL", Path.of("data/AAPL_stooq.csv")));
+        universe.put("MSFT", StooqCsvLoader.load("MSFT", Path.of("data/MSFT_stooq.csv")));
+        universe.put("TSLA", StooqCsvLoader.load("TSLA", Path.of("data/TSLA_stooq.csv")));
+        universe.put("GDX", StooqCsvLoader.load("GDX", Path.of("data/GDX_stooq.csv")));
+        universe.put("DBA", StooqCsvLoader.load("DBA", Path.of("data/DBA_stooq.csv")));
+        universe.put("CORN", StooqCsvLoader.load("CORN", Path.of("data/CORN_stooq.csv")));
+        universe.put("SOYB", StooqCsvLoader.load("SOYB", Path.of("data/SOYB_stooq.csv")));
+        universe.put("WEAT", StooqCsvLoader.load("WEAT", Path.of("data/WEAT_stooq.csv")));
+        universe.put("DBB", StooqCsvLoader.load("DBB", Path.of("data/DBB_stooq.csv")));
+        universe.put("BCIM", StooqCsvLoader.load("BCIM", Path.of("data/BCIM_stooq.csv")));
+        universe.put("USO", StooqCsvLoader.load("USO", Path.of("data/USO_stooq.csv")));
+        universe.put("BNO", StooqCsvLoader.load("BNO", Path.of("data/BNO_stooq.csv")));
+        universe.put("FGDL", StooqCsvLoader.load("FGDL", Path.of("data/FGDL_stooq.csv")));
+        universe.put("PLG", StooqCsvLoader.load("PLG", Path.of("data/PLG_stooq.csv")));
+
+        // commodities
+        universe.put("GDX", StooqCsvLoader.load("GDX", Path.of("data/GDX_stooq.csv")));
 
         // Optional: trim history if you only want data from a given date
         LocalDate startDate = LocalDate.of(2002, 1, 1);
