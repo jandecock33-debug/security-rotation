@@ -96,6 +96,9 @@ public class Main {
 
         // Expect CSV files downloaded from Stooq (or manually saved) in the data/ folder:
         //   https://stooq.com/q/d/l/?s=spy.us&i=d  -> SPY_stooq.csv
+      /*
+       * Individuals
+       */
         universe.put("SPY", StooqCsvLoader.load("SPY", Path.of("data/SPY_stooq.csv")));
         universe.put("EFA", StooqCsvLoader.load("EFA", Path.of("data/EFA_stooq.csv")));
         universe.put("QQQ", StooqCsvLoader.load("QQQ", Path.of("data/QQQ_stooq.csv")));
@@ -111,7 +114,7 @@ public class Main {
         universe.put("COIN", StooqCsvLoader.load("COIN", Path.of("data/COIN_stooq.csv")));  // kathy Wood 251124
         universe.put("BMNR", StooqCsvLoader.load("BMNR", Path.of("data/BMNR_stooq.csv")));   // kathy Wood 251124
         universe.put("CRCL", StooqCsvLoader.load("CRCL", Path.of("data/CRCL_stooq.csv")));  // kathy Wood 251124
-//        universe.put("CDE", StooqCsvLoader.load("CDE", Path.of("data/CDE_stooq.csv")));
+        universe.put("CDE", StooqCsvLoader.load("CDE", Path.of("data/CDE_stooq.csv")));
         universe.put("CPER", StooqCsvLoader.load("CPER", Path.of("data/CPER_stooq.csv")));
         universe.put("UUP", StooqCsvLoader.load("UUP", Path.of("data/UUP_stooq.csv")));
         universe.put("TLT", StooqCsvLoader.load("TLT", Path.of("data/TLT_stooq.csv")));
@@ -140,11 +143,47 @@ public class Main {
         universe.put("BCIM", StooqCsvLoader.load("BCIM", Path.of("data/BCIM_stooq.csv")));
         universe.put("USO", StooqCsvLoader.load("USO", Path.of("data/USO_stooq.csv")));
         universe.put("BNO", StooqCsvLoader.load("BNO", Path.of("data/BNO_stooq.csv")));
+        universe.put("IAU", StooqCsvLoader.load("IAU", Path.of("data/IAU_stooq.csv")));
         universe.put("FGDL", StooqCsvLoader.load("FGDL", Path.of("data/FGDL_stooq.csv")));
         universe.put("PLG", StooqCsvLoader.load("PLG", Path.of("data/PLG_stooq.csv")));
+        universe.put("FIGS", StooqCsvLoader.load("FIGS", Path.of("data/FIGS_stooq.csv")));
+        universe.put("MDB", StooqCsvLoader.load("MDB", Path.of("data/MDB_stooq.csv")));
+        universe.put("KMT", StooqCsvLoader.load("KMT", Path.of("data/KMT_stooq.csv")));
+        universe.put("EVER", StooqCsvLoader.load("EVER", Path.of("data/EVER_stooq.csv")));
+        universe.put("TRGP", StooqCsvLoader.load("TRGP", Path.of("data/TRGP_stooq.csv")));
+        universe.put("AEM", StooqCsvLoader.load("AEM", Path.of("data/AEM_stooq.csv")));
+//
+//        // commodities
+//        universe.put("GDX", StooqCsvLoader.load("GDX", Path.of("data/GDX_stooq.csv")));
 
-        // commodities
-        universe.put("GDX", StooqCsvLoader.load("GDX", Path.of("data/GDX_stooq.csv")));
+
+      /*
+       * Core benchmark + safety - see https://chatgpt.com/g/g-p-68e394f7d2588191be07ef22e8e6952b-software-projecten/c/691cde60-a480-8326-8cee-463b0856bc0d
+       */
+//        universe.put("SPY", StooqCsvLoader.load("SPY", Path.of("data/SPY_stooq.csv")));
+//        universe.put("EFA", StooqCsvLoader.load("EFA", Path.of("data/EFA_stooq.csv")));
+//        universe.put("IWM", StooqCsvLoader.load("IWM", Path.of("data/IWM_stooq.csv")));
+//        universe.put("IEF", StooqCsvLoader.load("IEF", Path.of("data/IEF_stooq.csv")));
+
+
+        /*
+         * Sector ETFs (SPDR Select Sectors)
+         * These are all US-domiciled, very liquid, and match S&P 500 sectors. Perfect for rotation:
+         */
+//        universe.put("XLK", StooqCsvLoader.load("XLK", Path.of("data/XLK_stooq.csv")));
+//        universe.put("XLF", StooqCsvLoader.load("XLF", Path.of("data/XLF_stooq.csv")));
+//        universe.put("XLV", StooqCsvLoader.load("XLV", Path.of("data/XLV_stooq.csv")));
+//        universe.put("XLE", StooqCsvLoader.load("XLE", Path.of("data/XLE_stooq.csv")));
+//        universe.put("XLI", StooqCsvLoader.load("XLI", Path.of("data/XLI_stooq.csv")));
+//        universe.put("XLP", StooqCsvLoader.load("XLP", Path.of("data/XLP_stooq.csv")));
+//        universe.put("XLY", StooqCsvLoader.load("XLY", Path.of("data/XLY_stooq.csv")));
+//        universe.put("XLB", StooqCsvLoader.load("XLB", Path.of("data/XLB_stooq.csv")));
+//        universe.put("XLU", StooqCsvLoader.load("XLU", Path.of("data/XLU_stooq.csv")));
+//        universe.put("XLRE", StooqCsvLoader.load("XLRE", Path.of("data/XLRE_stooq.csv")));
+//        universe.put("XLC", StooqCsvLoader.load("XLC", Path.of("data/XLC_stooq.csv")));
+
+
+
 
         // Optional: trim history if you only want data from a given date
         LocalDate startDate = LocalDate.of(2002, 1, 1);
