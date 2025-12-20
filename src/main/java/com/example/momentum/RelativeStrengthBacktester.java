@@ -1,4 +1,3 @@
-
 package com.example.momentum;
 
 import java.time.LocalDate;
@@ -55,7 +54,7 @@ public class RelativeStrengthBacktester {
     private void initCsv() {
         try {
             Files.createDirectories(rankingsCsvPath.getParent());
-            String header = "date,scoreMode,rotationSpeed,riskOn,rank,symbol,score,atrPercent,isHolding%n";
+            String header = "date,scoreMode,rotationSpeed,riskOn,rank,symbol,score,dailyScore,weeklyScore,monthlyScore,atrPercent,isHolding%n";
             Files.writeString(
                     rankingsCsvPath,
                     String.format(header),
@@ -89,8 +88,8 @@ public class RelativeStrengthBacktester {
 
             // Always compute ranking (for score display), even if we go risk-off.
             List<RankedEtf> ranked = ranker.rank(universe, rebalanceDate);
-            Map<String, Double> scoreBySymbol = ranked.stream()
-                    .collect(Collectors.toMap(RankedEtf::symbol, RankedEtf::score));
+            Map<String, RankedEtf> rankedBySymbol = ranked.stream()
+                    .collect(Collectors.toMap(RankedEtf::symbol, r -> r));
 
             boolean riskOn = isRiskOn(rebalanceDate);
 
@@ -111,21 +110,17 @@ public class RelativeStrengthBacktester {
             equityDates.add(nextRebalanceDate);
             equityValues.add(equity);
 
-            String scoreLabel = (ranker.getMode() == ScoreMode.RS_COMBINED) ? "RS" : "R6M%";
-
-            // existing holdings line
             String holdingsDetails = selected.stream()
                     .map(sym -> {
-                        Double score = scoreBySymbol.get(sym);
+                        RankedEtf r = rankedBySymbol.get(sym);
                         OptionalDouble atrPctOpt = TechnicalIndicators.atrPercent(
                                 universe.get(sym), rebalanceDate, atrPeriodDays);
-                        String scoreStr = (score == null)
-                                ? "n/a"
-                                : String.format("%.2f", score);
+
+                        String scoreStr = formatScoreForHolding(r);
                         String atrStr = atrPctOpt.isEmpty()
                                 ? "n/a"
                                 : String.format("%.2f", atrPctOpt.getAsDouble());
-                        return sym + "(" + scoreLabel + "=" + scoreStr + ",ATR%=" + atrStr + ")";
+                        return sym + "(" + scoreStr + ",ATR%=" + atrStr + ")";
                     })
                     .collect(Collectors.joining(", "));
 
@@ -135,13 +130,32 @@ public class RelativeStrengthBacktester {
                     holdingsDetails, periodReturn * 100.0, equity);
 
             // full ranked list in console
-            printRankedUniverse(rebalanceDate, ranked, scoreLabel);
+            printRankedUniverse(rebalanceDate, ranked);
 
             // write ranked universe to CSV
             appendRankingsCsv(rebalanceDate, riskOn, selected, ranked);
         }
 
         return new EquityCurve(equityDates, equityValues);
+    }
+
+    private String formatScoreForHolding(RankedEtf r) {
+        if (r == null) return "score=n/a";
+
+        return switch (ranker.getMode()) {
+            case RS_COMBINED -> String.format("RS=%.2f", r.score());
+            case RETURN_6M -> String.format("R6M%%=%.2f", r.score());
+            case TV_TECHNICAL -> String.format("TV(M/W/D)=%.2f/%.2f/%.2f", r.monthly(), r.weekly(), r.daily());
+        };
+    }
+
+    private String formatScoreForRow(RankedEtf r) {
+        if (r == null) return "n/a";
+        return switch (ranker.getMode()) {
+            case RS_COMBINED -> String.format(Locale.US, "RS=%.2f", r.score());
+            case RETURN_6M -> String.format(Locale.US, "R6M%%=%.2f", r.score());
+            case TV_TECHNICAL -> String.format(Locale.US, "M=%.2f W=%.2f D=%.2f", r.monthly(), r.weekly(), r.daily());
+        };
     }
 
     private boolean isRiskOn(LocalDate asOfDate) {
@@ -276,11 +290,9 @@ public class RelativeStrengthBacktester {
     }
 
     // print full ranked list to console
-    private void printRankedUniverse(LocalDate asOfDate,
-                                     List<RankedEtf> ranked,
-                                     String scoreLabel) {
+    private void printRankedUniverse(LocalDate asOfDate, List<RankedEtf> ranked) {
 
-        System.out.println("  Ranked universe on " + asOfDate + " (" + scoreLabel + "):");
+        System.out.println("  Ranked universe on " + asOfDate + " (" + ranker.getMode() + "):");
         int pos = 1;
         for (RankedEtf r : ranked) {
             EtfHistory h = universe.get(r.symbol());
@@ -288,8 +300,9 @@ public class RelativeStrengthBacktester {
             String atrStr = atrPctOpt.isEmpty()
                     ? "n/a"
                     : String.format("%.2f", atrPctOpt.getAsDouble());
-            System.out.printf("    #%d %s: %s=%.2f, ATR%%=%s%n",
-                    pos++, r.symbol(), scoreLabel, r.score(), atrStr);
+
+            System.out.printf("    #%d %s: %s, ATR%%=%s%n",
+                    pos++, r.symbol(), formatScoreForRow(r), atrStr);
         }
     }
 
@@ -306,21 +319,34 @@ public class RelativeStrengthBacktester {
                 OptionalDouble atrPctOpt = TechnicalIndicators.atrPercent(h, date, atrPeriodDays);
 
                 String scoreStr = String.format(Locale.US, "%.6f", r.score());
+                String dailyStr = Double.isNaN(r.daily()) ? "" : String.format(Locale.US, "%.6f", r.daily());
+                String weeklyStr = Double.isNaN(r.weekly()) ? "" : String.format(Locale.US, "%.6f", r.weekly());
+                String monthlyStr = Double.isNaN(r.monthly()) ? "" : String.format(Locale.US, "%.6f", r.monthly());
+
+                // For single-score modes, keep dailyScore populated for convenience
+                if (ranker.getMode() != ScoreMode.TV_TECHNICAL) {
+                    weeklyStr = "";
+                    monthlyStr = "";
+                }
+
                 String atrStr = atrPctOpt.isEmpty()
                         ? ""
                         : String.format(Locale.US, "%.4f", atrPctOpt.getAsDouble());
                 boolean holding = selected.contains(r.symbol());
 
                 sb.append(date).append(',')
-                  .append(ranker.getMode()).append(',')
-                  .append(rotationSpeed).append(',')
-                  .append(riskOn).append(',')
-                  .append(pos++).append(',')
-                  .append(r.symbol()).append(',')
-                  .append(scoreStr).append(',')
-                  .append(atrStr).append(',')
-                  .append(holding)
-                  .append('\n');
+                        .append(ranker.getMode()).append(',')
+                        .append(rotationSpeed).append(',')
+                        .append(riskOn).append(',')
+                        .append(pos++).append(',')
+                        .append(r.symbol()).append(',')
+                        .append(scoreStr).append(',')
+                        .append(dailyStr).append(',')
+                        .append(weeklyStr).append(',')
+                        .append(monthlyStr).append(',')
+                        .append(atrStr).append(',')
+                        .append(holding)
+                        .append('\n');
             }
 
             Files.writeString(rankingsCsvPath, sb.toString(), StandardOpenOption.APPEND);

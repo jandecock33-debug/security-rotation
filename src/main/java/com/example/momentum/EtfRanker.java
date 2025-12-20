@@ -1,4 +1,3 @@
-
 package com.example.momentum;
 
 import java.time.LocalDate;
@@ -24,11 +23,17 @@ public class EtfRanker {
 
         for (EtfHistory history : universe.values()) {
             calculator.computeScore(history, asOfDate)
-                      .ifPresent(score -> list.add(new RankedEtf(history.getSymbol(), score)));
+                    .ifPresent(snapshot -> list.add(new RankedEtf(
+                            history.getSymbol(),
+                            snapshot.score(),
+                            snapshot.daily(),
+                            snapshot.weekly(),
+                            snapshot.monthly()
+                    )));
         }
 
         return list.stream()
-                   .sorted(Comparator.comparingDouble(RankedEtf::score).reversed())
-                   .collect(Collectors.toList());
+                .sorted(Comparator.comparingDouble(RankedEtf::score).reversed())
+                .collect(Collectors.toList());
     }
 }

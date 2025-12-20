@@ -1,7 +1,7 @@
-
 package com.example.momentum;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.OptionalDouble;
 
 /**
@@ -21,19 +21,19 @@ public class SixMonthReturnCalculator implements ScoreCalculator {
     }
 
     @Override
-    public OptionalDouble computeScore(EtfHistory history, LocalDate asOfDate) {
+    public Optional<ScoreSnapshot> computeScore(EtfHistory history, LocalDate asOfDate) {
         OptionalDouble closeTodayOpt = history.getCloseOnOrBefore(asOfDate);
-        if (closeTodayOpt.isEmpty()) return OptionalDouble.empty();
+        if (closeTodayOpt.isEmpty()) return Optional.empty();
         double cToday = closeTodayOpt.getAsDouble();
 
         LocalDate lookbackDate = asOfDate.minusDays(lookbackDays);
         OptionalDouble closeLookbackOpt = history.getCloseOnOrBefore(lookbackDate);
-        if (closeLookbackOpt.isEmpty()) return OptionalDouble.empty();
+        if (closeLookbackOpt.isEmpty()) return Optional.empty();
         double cPast = closeLookbackOpt.getAsDouble();
-        if (cPast <= 0.0) return OptionalDouble.empty();
+        if (cPast <= 0.0) return Optional.empty();
 
         double retFraction = (cToday / cPast) - 1.0;
         double retPercent = retFraction * 100.0;
-        return OptionalDouble.of(retPercent);
+        return Optional.of(ScoreSnapshot.single(retPercent));
     }
 }

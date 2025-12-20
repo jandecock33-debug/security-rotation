@@ -88,13 +88,14 @@ public class StooqDownloader {
 //    dl.downloadDailyCsv("nu.us", Path.of("data/NU_stooq.csv"));
 //    dl.downloadDailyCsv("iau.us", Path.of("data/IAU_stooq.csv"));
 //    dl.downloadDailyCsv("trgp.us", Path.of("data/TRGP_stooq.csv"));
-    dl.downloadDailyCsv("aem.us", Path.of("data/AEM_stooq.csv"));
-
+//    dl.downloadDailyCsv("aem.us", Path.of("data/AEM_stooq.csv"));
+//
 //    dl.downloadDailyCsv("figs.us", Path.of("data/FIGS_stooq.csv"));  // Zachs strong nuy now (251210)
 //    dl.downloadDailyCsv("mdb.us", Path.of("data/MDB_stooq.csv"));  // Zachs strong nuy now (251210)
 //    dl.downloadDailyCsv("kmt.us", Path.of("data/KMT_stooq.csv"));  // Zachs strong nuy now (251210)
 //    dl.downloadDailyCsv("ever.us", Path.of("data/EVER_stooq.csv"));  // Zachs strong nuy now (251210)
 //    dl.downloadDailyCsv("opfi.us", Path.of("data/OPFI_stooq.csv")); // Zachs strong nuy now (251210)
+    dl.downloadDailyCsv("orcl.us", Path.of("data/ORCL_stooq.csv")); // Zachs strong nuy now (251210)
 
 
 

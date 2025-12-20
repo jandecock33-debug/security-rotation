@@ -32,8 +32,10 @@ public class Main {
             int lookback6m = 126;
             int lookback12m = 252;
             calculator = new CombinedMomentumCalculator(lookback3m, lookback6m, lookback12m);
-        } else {
+        } else if (scoreMode == ScoreMode.RETURN_6M) {
             calculator = new SixMonthReturnCalculator(120); // ~6 months
+        } else {
+            calculator = new TvTechnicalScoreCalculator();
         }
 
         EtfRanker ranker = new EtfRanker(calculator, scoreMode);
@@ -80,10 +82,14 @@ public class Main {
         System.out.println("Choose ranking mode:");
         System.out.println("  1 = Combined RS (3/6/12-month momentum)");
         System.out.println("  2 = Last 6 months return (%)");
-        System.out.print("Your choice [1/2]: ");
+        System.out.println("  3 = TradingView Technical Score (Daily/Weekly/Monthly)");
+        System.out.print("Your choice [1/2/3]: ");
         String input = scanner.nextLine().trim();
         if ("2".equals(input)) {
             return ScoreMode.RETURN_6M;
+        }
+        if ("3".equals(input)) {
+            return ScoreMode.TV_TECHNICAL;
         }
         return ScoreMode.RS_COMBINED;
     }
@@ -152,6 +158,7 @@ public class Main {
         universe.put("EVER", StooqCsvLoader.load("EVER", Path.of("data/EVER_stooq.csv")));
         universe.put("TRGP", StooqCsvLoader.load("TRGP", Path.of("data/TRGP_stooq.csv")));
         universe.put("AEM", StooqCsvLoader.load("AEM", Path.of("data/AEM_stooq.csv")));
+        universe.put("ORCL", StooqCsvLoader.load("ORCL", Path.of("data/ORCL_stooq.csv")));
 //
 //        // commodities
 //        universe.put("GDX", StooqCsvLoader.load("GDX", Path.of("data/GDX_stooq.csv")));

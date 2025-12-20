@@ -1,12 +1,12 @@
-
 package com.example.momentum;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.OptionalDouble;
 
 /**
- * Computes a combined momentum / relative-strength score
- * as the average of returns over multiple lookback windows.
+ * Computes a combined momentum / relative-strength score as the average of
+ * returns over multiple lookback windows.
  *
  * Example: 63/126/252 days (~3/6/12 months).
  */
@@ -22,9 +22,9 @@ public class CombinedMomentumCalculator implements ScoreCalculator {
     }
 
     @Override
-    public OptionalDouble computeScore(EtfHistory history, LocalDate asOfDate) {
+    public Optional<ScoreSnapshot> computeScore(EtfHistory history, LocalDate asOfDate) {
         OptionalDouble closeTodayOpt = history.getCloseOnOrBefore(asOfDate);
-        if (closeTodayOpt.isEmpty()) return OptionalDouble.empty();
+        if (closeTodayOpt.isEmpty()) return Optional.empty();
         double cToday = closeTodayOpt.getAsDouble();
 
         double sum = 0.0;
@@ -42,9 +42,9 @@ public class CombinedMomentumCalculator implements ScoreCalculator {
             count++;
         }
 
-        if (count == 0) return OptionalDouble.empty();
+        if (count == 0) return Optional.empty();
 
         double avg = sum / count;
-        return OptionalDouble.of(avg);
+        return Optional.of(ScoreSnapshot.single(avg));
     }
 }
