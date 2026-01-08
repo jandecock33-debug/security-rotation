@@ -1,9 +1,20 @@
 
 # Java ETF Dual-Momentum Backtester (Complete Version)
 
-Features:
+This version reads both the **universe** and the **daily price history** from your PostgreSQL
+database (the "charting" DB).
 
-- CSV loader for Stooq daily data (Date,Open,High,Low,Close,Volume).
+The symbols to process are defined in an input file, which can contain:
+
+- Individual tickers (e.g. `AAPL`)
+- `SP500` (expand to all symbols where `quotes.origin` contains `SP500`)
+- `NASDAQ100` (expand to all symbols where `quotes.origin` contains `NASDAQ100`)
+
+You can comment out lines to exclude them.
+
+## Features
+
+- (Still included) CSV loader for Stooq daily data (Date,Open,High,Low,Close,Volume).
 - Monthly dual-momentum strategy with:
   - Risk-on/off using 200-day SMA of SPY.
   - Top-N ETF selection among risky assets.
@@ -21,37 +32,63 @@ Features:
   - Written to `output/ranked-universe.csv`.
   - Columns: date, scoreMode, rotationSpeed, riskOn, rank, symbol, score, atrPercent, isHolding.
 
-## Data
+## Input files
 
-Download historical daily data from Stooq:
+### 1) Database connection
 
-- SPY: https://stooq.com/q/d/l/?s=spy.us&i=d
-- EFA: https://stooq.com/q/d/l/?s=efa.us&i=d
-- QQQ: https://stooq.com/q/d/l/?s=qqq.us&i=d
-- IWM: https://stooq.com/q/d/l/?s=iwm.us&i=d
-- IEF: https://stooq.com/q/d/l/?s=ief.us&i=d
+Create `config/charting-db.properties` (sample provided):
 
-Save them into the `data/` folder as:
+```properties
+url=jdbc:postgresql://localhost:5432/charting
+username=postgres
+password=postgres
+```
 
-- `SPY_stooq.csv`
-- `EFA_stooq.csv`
-- `QQQ_stooq.csv`
-- `IWM_stooq.csv`
-- `IEF_stooq.csv`
+Or provide the same values via environment variables / system properties:
 
-Or uncomment `downloadFromStooq()` in `Main` to let the app download them.
+- `CHARTING_DB_URL`
+- `CHARTING_DB_USERNAME`
+- `CHARTING_DB_PASSWORD`
+
+### 2) Universe definition
+
+Edit `config/universe.txt` (sample provided). Example:
+
+```text
+SP500
+NASDAQ100
+
+# Individual tickers:
+AAPL
+MSFT  # inline comment
+
+// TSLA  (commented out)
+;NVDA  (commented out)
+```
 
 ## Running
 
 1. Open the project in IntelliJ as a Maven project (open `pom.xml`).
 
 2. Run the `Main` class.
+
+   By default it uses:
+   - universe file: `config/universe.txt`
+   - DB config file: `config/charting-db.properties`
+
+   You can override them with arguments:
+   - `args[0]` = universe file path
+   - `args[1]` = db properties path
    - First, it will ask rotation speed:
      - `1` = FAST
      - `2` = SLOW
    - Then, it will ask ranking mode:
      - `1` = 3/6/12-month combined RS
      - `2` = last 6-month return (%)
+     - `3` = TradingView Technical Score (Daily/Weekly/Monthly)
+
+   Note: the app always tries to load `SPY` (benchmark) and `IEF` (safety) from the DB,
+   even if they are not listed in `universe.txt`.
 
 3. For each monthly period, the console prints:
    - riskOn/riskOff,
